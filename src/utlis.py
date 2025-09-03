@@ -4,19 +4,24 @@ import numpy as np
 import pandas as pd
 from src.execption import CustomException
 import dill
+from sklearn.model_selection import GridSearchCV
 from sklearn.metrics import(
      r2_score,
     mean_absolute_error,
      mean_squared_error
 )
-def evaluate_model(X_train, y_train, X_test, y_test, models):
+def evaluate_model(X_train, y_train, X_test, y_test, models,param):
     try:
         report = {}
 
         for i in range(len(list(models))):
             model = list(models.values())[i]
             model_name = list(models.keys())[i]
-
+            para = param[list(models.keys())[i]]
+            
+            grid = GridSearchCV(model, para, cv=3, scoring='r2')
+            grid.fit(X_train, y_train)
+            model.set_params(**grid.best_params_)
             model.fit(X_train , y_train) ## Train Model
 
             y_train_pred = model.predict(X_train)
